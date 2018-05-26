@@ -30,28 +30,10 @@ import jpa.coupon.system.myExceptions.CustomerNotFoundException;
 @RestController
 public class AdminRestAPI {
 
+	private LogController loggerObj = new LogController(this.getClass());
+
 	@Autowired
-	private LogController logger;
-
-	// @Autowired
-	// private AdminFacade ADMIN;
-
-	// @PostConstruct
-	// public void init() {
-	// this.get();
-	// }
-
-	// private AdminFacade get() {
-	// CouponClientFacade s;
-	// try {
-	// s = ADMIN.login("admin", "admin", Clients.ADMIN);
-	// ADMIN = (AdminFacade) s;
-	// } catch (AdminExceptions e1) {
-	// // TODO Auto-generated catch block
-	// e1.printStackTrace();
-	// }
-	// return ADMIN;
-	// }
+	private AdminFacade ADMIN;
 
 	////////////////// Company methods ////////////////
 	@RequestMapping(value = "/createCompany", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -61,11 +43,11 @@ public class AdminRestAPI {
 		try {
 			ADMIN.createCompany(company);
 		} catch (CompanyExistException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " user: ADMIN could not create company: " + company
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " user: ADMIN could not create company: " + company
 					+ ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
-		logger.info(logger.getCurrentDate() + " user: ADMIN created: " + company + " successfully");
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " user: ADMIN created: " + company + " successfully");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN)
 				.body("user: ADMIN created: " + company + " successfully");
 	}
@@ -77,12 +59,12 @@ public class AdminRestAPI {
 		try {
 			ADMIN.removeCompany(company);
 		} catch (CompanyNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " user ADMIN could not delete company: " + company
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " user ADMIN could not delete company: " + company
 					+ ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 
-		logger.info(logger.getCurrentDate() + " user: ADMIN deleted: " + company + " successfully");
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " user: ADMIN deleted: " + company + " successfully");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN)
 				.body("user: ADMIN deleted: " + company + " successfully");
 	}
@@ -94,12 +76,12 @@ public class AdminRestAPI {
 		try {
 			ADMIN.updateCompany(company);
 		} catch (CompanyNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " user ADMIN could not update company: " + company
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " user ADMIN could not update company: " + company
 					+ ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 		String message = "user: ADMIN updated company to: " + company + " successfully";
-		logger.info(logger.getCurrentDate() + " " + message);
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " " + message);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(message);
 
 	}
@@ -107,18 +89,19 @@ public class AdminRestAPI {
 	@RequestMapping(value = "/getCompany/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCompany(@PathVariable("id") int id, HttpServletRequest request,
 			HttpServletResponse response) {
-		AdminFacade ADMIN = facade(request, response);
+		// AdminFacade ADMIN = facade(request, response);
 
 		Company company = null;
 		try {
 			company = ADMIN.getCompany(id);
 		} catch (CompanyNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate()
-					+ " The user ADMIN could not fetched a company details via getCompany(id) method."
-					+ " The entered id is:[ " + id + " ]" + ". Exception error: " + e.getMessage());
+			loggerObj.getLogger()
+					.debug(loggerObj.getCurrentDate()
+							+ " The user ADMIN could not fetched a company details via getCompany(id) method."
+							+ " The entered id is:[ " + id + " ]" + ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
-		logger.info(logger.getCurrentDate()
+		loggerObj.getLogger().info(loggerObj.getCurrentDate()
 				+ " The user ADMIN fetched a company details via getCompany(id) method. Company: " + company);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(company);
 	}
@@ -130,11 +113,12 @@ public class AdminRestAPI {
 		try {
 			companies = (ArrayList<Company>) ADMIN.getAllCompanies();
 		} catch (AdminExceptions | CompanyNotFoundException e) {
-			logger.debug(logger.getCurrentDate() + " User ADMIN could not get list via method getAllCompanies()."
+			loggerObj.error(loggerObj.getCurrentDate() + " User ADMIN could not get list via method getAllCompanies()."
 					+ ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
-		logger.info(logger.getCurrentDate() + " User ADMIN get details via method getAllCompanies().");
+		loggerObj.getLogger()
+				.info(loggerObj.getCurrentDate() + " User ADMIN get details via method getAllCompanies().");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(companies);
 	}
 
@@ -146,12 +130,12 @@ public class AdminRestAPI {
 		try {
 			ADMIN.createCustomer(customer);
 		} catch (CustomerExistException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " User: ADMIN could not create customer: " + customer
-					+ ". Exception error: " + e.getMessage());
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " User: ADMIN could not create customer: "
+					+ customer + ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 		String message = " User: ADMIN created: " + customer + " successfully";
-		logger.info(logger.getCurrentDate() + message);
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + message);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(message);
 	}
 
@@ -162,12 +146,12 @@ public class AdminRestAPI {
 		try {
 			ADMIN.removeCustomer(customer);
 		} catch (CustomerNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " User ADMIN could not delete customer:" + customer
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " User ADMIN could not delete customer:" + customer
 					+ ". Exception error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		String msg = " User: ADMIN deleted: " + customer + " successfully";
-		logger.info(logger.getCurrentDate() + msg);
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + msg);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(msg);
 	}
 
@@ -178,12 +162,12 @@ public class AdminRestAPI {
 		try {
 			ADMIN.updateCustomer(customer);
 		} catch (CustomerNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate() + " User ADMIN could not update customer:" + customer
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " User ADMIN could not update customer:" + customer
 					+ ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 		String msg = " User: ADMIN uptaded: " + customer + " successfully";
-		logger.info(logger.getCurrentDate() + msg);
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + msg);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(msg);
 	}
 
@@ -195,13 +179,14 @@ public class AdminRestAPI {
 		try {
 			customer = ADMIN.getCustomer(id);
 		} catch (CustomerNotFoundException | AdminExceptions e) {
-			logger.debug(logger.getCurrentDate()
-					+ " The user ADMIN could not fetched a customer details via method: getCustomer(id). The entered id is:[ "
-					+ id + " ]" + ". Exception error: " + e.getMessage());
+			loggerObj.getLogger()
+					.debug(loggerObj.getCurrentDate()
+							+ " The user ADMIN could not fetched a customer details via method: getCustomer(id). The entered id is:[ "
+							+ id + " ]" + ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 		String msg = " User: ADMIN get customer details: " + customer + " successfully";
-		logger.info(logger.getCurrentDate() + msg);
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + msg);
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(customer);
 	}
 
@@ -212,16 +197,44 @@ public class AdminRestAPI {
 		try {
 			list = (ArrayList<Customer>) ADMIN.getAllCustomers();
 		} catch (AdminExceptions | CustomerNotFoundException e) {
-			logger.debug(logger.getCurrentDate() + " User ADMIN could not get details via method getAllCustomers()."
-					+ ". Exception error: " + e.getMessage());
+			loggerObj.getLogger()
+					.debug(loggerObj.getCurrentDate()
+							+ " User ADMIN could not get details via method getAllCustomers()." + ". Exception error: "
+							+ e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
-		logger.info(logger.getCurrentDate() + " User ADMIN get details via method getAllCustomers().");
+		loggerObj.getLogger()
+				.info(loggerObj.getCurrentDate() + " User ADMIN get details via method getAllCustomers().");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
 	}
 
 	private AdminFacade facade(HttpServletRequest request, HttpServletResponse response) {
 		return (AdminFacade) request.getSession().getAttribute("facade");
 	}
+
+	// /**
+	// * just to test the admin user
+	// */
+	// @PostConstruct
+	// private void init() {
+	// this.get();
+	// }
+	//
+	// /**
+	// * This method mimic admin user logged-in
+	// *
+	// * @return
+	// */
+	// private AdminFacade get() {
+	// CouponClientFacade s;
+	// try {
+	// s = ADMIN.login("admin", "admin", Clients.ADMIN);
+	// ADMIN = (AdminFacade) s;
+	// } catch (AdminExceptions e1) {
+	// // TODO Auto-generated catch block
+	// e1.printStackTrace();
+	// }
+	// return ADMIN;
+	// }
 
 }

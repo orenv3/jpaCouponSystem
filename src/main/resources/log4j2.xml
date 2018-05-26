@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration monitorInterval="60">
+<Configuration monitorInterval="60"> 
 	<Properties>
 		<Property name="path">logs</Property>
 	</Properties>
@@ -12,15 +12,7 @@
 				
 			</PatternLayout>
 		</Console>
-		
-		<File name="App-Appender" fileName="${path}/Myapp_log.log">
-			<PatternLayout>
-				<pattern>
-					[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-				</pattern>
-			</PatternLayout>
-		</File>
-		<File name="SpringBoot-Appender" fileName="${path}/springboot_log.log">
+		 <File name="App-Appender" fileName="${path}/Myapp_log.log">
 			<PatternLayout>
 				<pattern>
 					[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
@@ -30,11 +22,10 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="org.springframework.web"  level="debug" additivity="false">
-			<AppenderRef ref="SpringBoot-Appender" />
 			<AppenderRef ref="Console-Appender" />
 		</Logger>
-		<Logger name="com.CSP_project.LogController"  level="debug" additivity="false">
-			<AppenderRef ref="App-Appender" />
+		<Logger name="jpa.coupon.system.restAPI.LogController"  level="info" additivity="false"> 
+			 <AppenderRef ref="App-Appender"/>
 			<AppenderRef ref="Console-Appender" />
 		</Logger>  
 		<Root level="info">
