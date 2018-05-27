@@ -1,5 +1,7 @@
 package jpa.coupon.system.restAPI;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -7,15 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.coupon.system.beans.Company;
 import jpa.coupon.system.beans.Coupon;
 import jpa.coupon.system.facades.CompanyFacade;
+import jpa.coupon.system.general.CouponType;
 import jpa.coupon.system.myExceptions.CompanyNotFoundException;
 import jpa.coupon.system.myExceptions.CouponExistException;
 import jpa.coupon.system.myExceptions.CouponNotFoundException;
@@ -114,9 +117,38 @@ public class CompanyRestAPI {
 				.body("The coupon " + coupon.getTitle() + " updated successfully");
 	}
 
-	public Coupon getCoupon(@RequestParam("couponID") int couponID) {
-		return null;
+	@RequestMapping(value = "/getCoupon/{couponID}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getCoupon(@PathVariable("couponID") int couponID, HttpServletRequest request,
+			HttpServletResponse response) {
+		CompanyFacade currentLogginCompany = facade(request, response);
+		Company companyDetails = (Company) getCurrentLoggingCompany(request, response).getBody();
+		Coupon coupon;
+		try {
+			coupon = currentLogginCompany.getCoupon(couponID);
+		} catch (CouponNotFoundException | CompanyNotFoundException e) {
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
+					+ " could not get the coupon ID: " + couponID + ". Exception error: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+					.body("Can not get the coupon: ID =  " + couponID + ". Exception error: " + e.getMessage());
+		}
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(coupon);
+	}
 
+	@RequestMapping(value = "/getCouponBySpecificType", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getCouponBySpecificType(CouponType type, HttpServletRequest request,
+			HttpServletResponse response) {
+		CompanyFacade currentLogginCompany = facade(request, response);
+		Company companyDetails = (Company) getCurrentLoggingCompany(request, response).getBody();
+		List<Coupon> list = null;
+		try {
+			currentLogginCompany.getCouponBySpecificType(type);
+		} catch (CouponNotFoundException e) {
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
+					+ " could not get the coupon by type: " + type + ". Exception error: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+					.body("Can not get coupons by type: type =  " + type + ". Exception error: " + e.getMessage());
+		}
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
 	}
 
 	/**
@@ -128,6 +160,7 @@ public class CompanyRestAPI {
 	 * @return ResponseEntity of company object in the body or an error message
 	 *         if there is exception.
 	 */
+	@RequestMapping(value = "/getCompany", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCompany(@RequestBody Company comapny, HttpServletRequest request,
 			HttpServletResponse response) {
 		CompanyFacade currentLogginCompany = facade(request, response);
