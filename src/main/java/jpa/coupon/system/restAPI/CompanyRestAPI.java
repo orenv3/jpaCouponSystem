@@ -126,7 +126,7 @@ public class CompanyRestAPI {
 	 * @param couponID
 	 * @param request
 	 * @param response
-	 * @return ResponseEntity String of an error or success message
+	 * @return ResponseEntity String of an error or coupon in the body
 	 */
 	@RequestMapping(value = "/getCoupon/{couponID}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCoupon(@PathVariable("couponID") int couponID, HttpServletRequest request,
@@ -175,13 +175,15 @@ public class CompanyRestAPI {
 	}
 
 	/**
-	 * Get a list of coupons by type
+	 * Get a list of coupons by specific type.The coupons owner will be the
+	 * logged-in company.
 	 * 
 	 * @param type
 	 *            Coupon Type via the enum CouponType
 	 * @param request
 	 * @param response
-	 * @return ResponseEntity String of an error or success message
+	 * @return ResponseEntity String of an error or List<Coupon> of coupons in
+	 *         the body
 	 */
 	@RequestMapping(value = "/getCouponBySpecificType/{type}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCouponBySpecificType(@PathVariable("type") CouponType type, HttpServletRequest request,
@@ -202,6 +204,16 @@ public class CompanyRestAPI {
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
 	}
 
+	/**
+	 * Get list of coupons order by type. The coupons owner will be the
+	 * logged-in company.
+	 * 
+	 * @param request
+	 * @param response
+	 * @return ResponseEntity String of an error or List<Coupon> of coupons in
+	 *         the body
+	 */
+	@RequestMapping(value = "/getCompanyCouponsOrderByType", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCompanyCouponsOrderByType(HttpServletRequest request, HttpServletResponse response) {
 
 		CompanyFacade currentLogginCompany = facade(request, response);
