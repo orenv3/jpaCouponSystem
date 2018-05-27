@@ -35,6 +35,7 @@ public class CompanyRestAPI {
 	 * coupon title is unique there is no duplication in the DB.
 	 * 
 	 * @param coupon
+	 *            coupon to create
 	 * @param request
 	 * @param response
 	 * @return ResponseEntity String of an error or success message
@@ -63,6 +64,7 @@ public class CompanyRestAPI {
 	 * company)
 	 * 
 	 * @param coupon
+	 *            coupon to remove
 	 * @param request
 	 * @param response
 	 * @return ResponseEntity String of an error or success message
@@ -93,6 +95,7 @@ public class CompanyRestAPI {
 	 * startDate and type.
 	 * 
 	 * @param coupon
+	 *            coupon to update
 	 * @param request
 	 * @param response
 	 * @return ResponseEntity String of an error or success message
@@ -117,6 +120,14 @@ public class CompanyRestAPI {
 				.body("The coupon " + coupon.getTitle() + " updated successfully");
 	}
 
+	/**
+	 * Get the coupon by ID
+	 * 
+	 * @param couponID
+	 * @param request
+	 * @param response
+	 * @return ResponseEntity String of an error or success message
+	 */
 	@RequestMapping(value = "/getCoupon/{couponID}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity getCoupon(@PathVariable("couponID") int couponID, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -129,26 +140,11 @@ public class CompanyRestAPI {
 			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
 					+ " could not get the coupon ID: " + couponID + ". Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
-					.body("Can not get the coupon: ID =  " + couponID + ". Exception error: " + e.getMessage());
+					.body("Can not get the coupon: coupon's ID = " + couponID + ". Exception error: " + e.getMessage());
 		}
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " The company: " + companyDetails + " get the coupon: "
+				+ coupon + " details successfully");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(coupon);
-	}
-
-	@RequestMapping(value = "/getCouponBySpecificType", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity getCouponBySpecificType(CouponType type, HttpServletRequest request,
-			HttpServletResponse response) {
-		CompanyFacade currentLogginCompany = facade(request, response);
-		Company companyDetails = (Company) getCurrentLoggingCompany(request, response).getBody();
-		List<Coupon> list = null;
-		try {
-			currentLogginCompany.getCouponBySpecificType(type);
-		} catch (CouponNotFoundException e) {
-			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
-					+ " could not get the coupon by type: " + type + ". Exception error: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
-					.body("Can not get coupons by type: type =  " + type + ". Exception error: " + e.getMessage());
-		}
-		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
 	}
 
 	/**
@@ -169,13 +165,63 @@ public class CompanyRestAPI {
 			companyDetails = currentLogginCompany.getCompany();
 		} catch (CompanyNotFoundException e) {
 			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " A company: " + companyDetails
-					+ " could not fetch the details Exception error: " + e.getMessage());
+					+ " could not fetch the company details Exception error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
 		}
 
 		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " The company " + companyDetails.getName()
 				+ " get the details successfully");
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(companyDetails);
+	}
+
+	/**
+	 * Get a list of coupons by type
+	 * 
+	 * @param type
+	 *            Coupon Type via the enum CouponType
+	 * @param request
+	 * @param response
+	 * @return ResponseEntity String of an error or success message
+	 */
+	@RequestMapping(value = "/getCouponBySpecificType/{type}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getCouponBySpecificType(@PathVariable("type") CouponType type, HttpServletRequest request,
+			HttpServletResponse response) {
+		CompanyFacade currentLogginCompany = facade(request, response);
+		Company companyDetails = (Company) getCurrentLoggingCompany(request, response).getBody();
+		List<Coupon> list = null;
+		try {
+			currentLogginCompany.getCouponBySpecificType(type);
+		} catch (CouponNotFoundException e) {
+			loggerObj.getLogger().debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
+					+ " could not get the coupons by the type: " + type + ". Exception error: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+					.body("Can not get coupons by the type: " + type + ". Exception error: " + e.getMessage());
+		}
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " The company: " + companyDetails
+				+ " get coupons by type: " + type + " (via getCouponBySpecificType()) successfully");
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
+	}
+
+	public ResponseEntity getCompanyCouponsOrderByType(HttpServletRequest request, HttpServletResponse response) {
+
+		CompanyFacade currentLogginCompany = facade(request, response);
+		Company companyDetails = (Company) getCurrentLoggingCompany(request, response).getBody();
+		List<Coupon> list = null;
+		try {
+			list = currentLogginCompany.getCompanyCouponsOrderByType();
+		} catch (CouponNotFoundException e) {
+
+			loggerObj.getLogger()
+					.debug(loggerObj.getCurrentDate() + " The company: " + companyDetails
+							+ " could not get the coupons by type via method: getCompanyCouponsOrderByType(). Exception error: "
+							+ e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+					.body("Can not get coupons by type. Exception error: " + e.getMessage());
+		}
+		loggerObj.getLogger().info(loggerObj.getCurrentDate() + " The company: " + companyDetails
+				+ " get coupons by type (via getCompanyCouponsOrderByType()) successfully");
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(list);
+
 	}
 
 	/**
@@ -196,7 +242,7 @@ public class CompanyRestAPI {
 	 * 
 	 * @param request
 	 * @param response
-	 * @return ResponseEntity of a company in the body.
+	 * @return ResponseEntity of a company in the body or String of an error
 	 */
 	private ResponseEntity getCurrentLoggingCompany(HttpServletRequest request, HttpServletResponse response) {
 		CompanyFacade cf = facade(request, response);
