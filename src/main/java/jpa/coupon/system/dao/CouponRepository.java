@@ -43,7 +43,6 @@ public interface CouponRepository extends CrudRepository<Coupon, Integer> {
 	 * 
 	 * @param couponId
 	 */
-	int findAmountById(int couponId);
 
 	/**
 	 * Update Coupon object. The only values that this method updates are:
